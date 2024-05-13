@@ -1,0 +1,50 @@
+console.log(`
+  ___  _         _       _         _    _      _       _    _            _             
+ / _ \\| |       | |     (_)       | |  | |    | |     | |  | |          | |            
+/ /_\\ \\ |__  ___| |_ ___ _ _ __   | |  | | ___| |__   | |  | | ___  _ __| | _____ _ __ 
+|  _  | '_ \\/ __| __/ _ \\ | '_ \\  | |/\\| |/ _ \\ '_ \\  | |/\\| |/ _ \\| '__| |/ / _ \\ '__|
+| | | | |_) \\__ \\ ||  __/ | | | | \\  /\\  /  __/ |_) | \\  /\\  / (_) | |  |   <  __/ |   
+\\_| |_/_.__/|___/\\__\\___|_|_| |_|  \\/  \\/ \\___|_.__/   \\/  \\/ \\___/|_|  |_|\\_\\___|_|   
+                                                                                      
+                                                                                      
+`)
+
+const express = require('express'),
+  bodyParser = require('body-parser'),
+  mesin = require('../routes/mesin_routes'),
+  kelas = require('../routes/kelas_routes'),
+  pengguna = require('../routes/pengguna_routes'),
+  sekolah = require('../routes/sekolah_routes'),
+  monitoring = require('../routes/monitoring_routes')
+
+app = express();
+cors = require('cors')
+
+
+async function main() {
+  try {
+
+    app.use(cors())
+    app.use(bodyParser.json())
+    app.use(bodyParser.urlencoded({ extended: true }))
+
+    app.use('/mesin', mesin)
+    app.use('/kelas', kelas)
+    app.use('/pengguna', pengguna)
+    app.use('/general', sekolah)
+    app.use('/monitoring', monitoring)
+
+    const port = 3001
+
+    app.listen(port, function () {
+      console.log('Listening on port ' + port);
+    });
+
+    let conn = await require('../setup').connectToRmq()
+    require('../services/consumer').consume(conn)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+main()
